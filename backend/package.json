@@ -1,0 +1,14 @@
+{
+  "name": "three13-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "dev": "node --watch server.js", "lint": "eslint ." },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "razorpay": "^2.9.4"
+  },
+  "devDependencies": { "eslint": "^8.57.0" }
+}

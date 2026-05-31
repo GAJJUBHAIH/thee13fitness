@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="64" viewBox="0 0 260 64" fill="none">
+  <rect x="2" y="10" width="44" height="44" rx="10" fill="none" stroke="#39FF14" stroke-width="2"/>
+  <text x="24" y="40" font-family="Orbitron, sans-serif" font-size="20" font-weight="900" fill="#39FF14" text-anchor="middle">3B</text>
+  <text x="60" y="40" font-family="Orbitron, sans-serif" font-size="22" font-weight="700" fill="#e6f5e6">Three<tspan fill="#39FF14">B</tspan> Fitness</text>
+</svg>

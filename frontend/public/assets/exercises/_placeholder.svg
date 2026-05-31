@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="16" fill="#0a0d0f"/>
+  <rect x="10" y="10" width="180" height="180" rx="12" fill="none" stroke="#39FF14" stroke-opacity="0.4" stroke-width="2"/>
+  <path d="M55 100 h20 M125 100 h20 M75 85 h50 v30 h-50 z M65 90 v20 M135 90 v20" stroke="#39FF14" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <text x="100" y="170" font-family="Inter, sans-serif" font-size="14" fill="#5b6b5b" text-anchor="middle">EXERCISE</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#0a0d0f"/>
+  <rect x="20" y="20" width="760" height="560" rx="18" fill="none" stroke="#39FF14" stroke-opacity="0.3" stroke-width="2"/>
+  <text x="400" y="300" font-family="Orbitron, sans-serif" font-size="40" font-weight="700" fill="#39FF14" text-anchor="middle">CARDIO ZONE</text>
+</svg>
