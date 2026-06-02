@@ -2,8 +2,8 @@ import { Suspense, useRef, useEffect } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 
-const MALE_MODEL_URL = '/assets/models/gym-character.glb'
-const FEMALE_MODEL_URL = '/assets/models/female.glb'
+const MALE_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/gym-character.glb`
+const FEMALE_MODEL_URL = `${import.meta.env.BASE_URL}assets/models/female.glb`
 
 /**
  * Loads the gender-specific GLB human model and rotates it

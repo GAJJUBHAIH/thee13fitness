@@ -2,12 +2,12 @@ import { motion } from 'framer-motion'
 import { SectionHeader } from '../ui/index.js'
 
 const IMAGES = [
-  { src: '/assets/store/barbell.jpg', alt: 'Barbell set' },
-  { src: '/assets/store/kettlebells.jpg', alt: 'Kettlebell training' },
-  { src: '/assets/store/shaker-bottle.jpg', alt: 'Shaker bottle' },
-  { src: '/assets/store/yoga-mat.jpg', alt: 'Yoga mat' },
-  { src: '/assets/store/gym-bag.jpg', alt: 'Gym bag' },
-  { src: '/assets/store/shoes.jpg', alt: 'Training shoes' },
+  { src: `${import.meta.env.BASE_URL}assets/store/barbell.jpg`, alt: 'Barbell set' },
+  { src: `${import.meta.env.BASE_URL}assets/store/kettlebells.jpg`, alt: 'Kettlebell training' },
+  { src: `${import.meta.env.BASE_URL}assets/store/shaker-bottle.jpg`, alt: 'Shaker bottle' },
+  { src: `${import.meta.env.BASE_URL}assets/store/yoga-mat.jpg`, alt: 'Yoga mat' },
+  { src: `${import.meta.env.BASE_URL}assets/store/gym-bag.jpg`, alt: 'Gym bag' },
+  { src: `${import.meta.env.BASE_URL}assets/store/shoes.jpg`, alt: 'Training shoes' },
 ]
 
 export default function Gallery() {

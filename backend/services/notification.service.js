@@ -3,8 +3,14 @@ import nodemailer from 'nodemailer';
 import { config } from '../config/env.js';
 
 let twilioClient;
-if (config.twilio.accountSid && config.twilio.authToken) {
-  twilioClient = twilio(config.twilio.accountSid, config.twilio.authToken);
+if (config.twilio.accountSid && config.twilio.accountSid.startsWith('AC') && config.twilio.authToken) {
+  try {
+    twilioClient = twilio(config.twilio.accountSid, config.twilio.authToken);
+  } catch (error) {
+    console.error('Twilio initialization error:', error.message);
+  }
+} else {
+  console.warn('Twilio NOT initialized: Valid TWILIO_ACCOUNT_SID (starting with AC) and TWILIO_AUTH_TOKEN are required.');
 }
 
 let transporter;

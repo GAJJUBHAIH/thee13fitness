@@ -1,9 +1,12 @@
-import { createOrder, verifySignature } from '../services/razorpay.service.js'
+import { createOrder, verifySignature, isRazorpayConfigured } from '../services/razorpay.service.js'
 import { createAndSaveToken } from '../services/token.service.js'
 import { sendPurchaseNotifications } from '../services/notification.service.js'
 import { appendToExcelReport } from '../services/report.service.js'
 
 export async function createOrderHandler(req, res) {
+  if (!isRazorpayConfigured()) {
+    return res.status(500).json({ success: false, message: 'Razorpay not configured' });
+  }
   const { amount, currency, plan } = req.body
   if (!amount || amount < 100) return res.status(400).json({ error: 'Invalid amount' })
   const order = await createOrder({ amount, currency, plan })
@@ -11,6 +14,10 @@ export async function createOrderHandler(req, res) {
 }
 
 export async function verifyHandler(req, res) {
+  if (!isRazorpayConfigured()) {
+    return res.status(500).json({ success: false, message: 'Razorpay not configured' });
+  }
+
   const valid = verifySignature(req.body)
   
   if (valid) {

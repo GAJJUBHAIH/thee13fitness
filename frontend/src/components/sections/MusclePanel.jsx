@@ -39,7 +39,7 @@ export default function MusclePanel({ muscleId, onClose }) {
             {data.exercises.map((ex) => (
               <div key={ex.name} className="flex gap-3 rounded-xl border border-white/10 bg-ink-700/60 p-3 transition hover:border-neon/50">
                 <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-ink-800">
-                  <img src={ex.image} alt={ex.name} className="h-full w-full object-cover" onError={(e) => { e.currentTarget.src = '/assets/exercises/_placeholder.svg' }} />
+                  <img src={ex.image} alt={ex.name} className="h-full w-full object-cover" onError={(e) => { e.currentTarget.src = `${import.meta.env.BASE_URL}assets/exercises/_placeholder.svg` }} />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-white">{ex.name}</p>

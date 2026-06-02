@@ -1,7 +1,7 @@
 export const TRAINERS = [
   {
     name: 'BABU SAHEB ',
-    image: '/assets/trainers/babusaheb.png',
+    image: `${import.meta.env.BASE_URL}assets/trainers/babusaheb.png`,
     specialization: 'Strength & Powerlifting',
     experience: '4 years',
     certs: ['NASM-CPT', 'IPF Coach'],
@@ -13,7 +13,7 @@ export const TRAINERS = [
   },
   {
     name: 'SORAB SHEK',
-    image: '/assets/trainers/sorabshek.png',
+    image: `${import.meta.env.BASE_URL}assets/trainers/sorabshek.png`,
     specialization: 'Fat Loss & Conditioning Strength & Powerlifting',
     experience: '6 years',
     certs: ['ACE-CPT', 'Precision Nutrition L1'],
@@ -25,7 +25,7 @@ export const TRAINERS = [
   },
   {
     name: 'GAJJU BHAI ',
-    image: '/assets/trainers/gajju.png',
+    image: `${import.meta.env.BASE_URL}assets/trainers/gajju.png`,
     specialization: 'Bodybuilding & Hypertrophy',
     experience: '10 years',
     certs: ['ISSA', 'IFBB Pro Card'],
@@ -37,7 +37,7 @@ export const TRAINERS = [
   },
   {
     name: 'Sneha Iyer',
-    image: '/assets/trainers/sneha.png',
+    image: `${import.meta.env.BASE_URL}assets/trainers/sneha.png`,
     specialization: 'Functional & Mobility',
     experience: '5 years',
     certs: ['FMS L2', 'Yoga RYT-200'],

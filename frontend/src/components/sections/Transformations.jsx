@@ -7,22 +7,22 @@ const STORIES = [
     name: 'Amit R.',
     result: '-18 kg in 6 months',
     quote: 'Three13 rebuilt my confidence and my body.',
-    beforeImage: '/assets/transformations/amit-before.svg',
-    afterImage: '/assets/transformations/amit-after.svg',
+    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/amit-before.svg`,
+    afterImage: `${import.meta.env.BASE_URL}assets/transformations/amit-after.svg`,
   },
   {
     name: 'Neha K.',
     result: '+7 kg lean mass',
     quote: 'The AI planner kept me consistent every single week.',
-    beforeImage: '/assets/transformations/neha-before.svg',
-    afterImage: '/assets/transformations/neha-after.svg',
+    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/neha-before.svg`,
+    afterImage: `${import.meta.env.BASE_URL}assets/transformations/neha-after.svg`,
   },
   {
     name: 'Vikram S.',
     result: 'Deadlift 80 -> 160 kg',
     quote: 'Best coaching I have ever had. Pure results.',
-    beforeImage: '/assets/transformations/vikram-before.svg',
-    afterImage: '/assets/transformations/vikram-after.svg',
+    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/vikram-before.svg`,
+    afterImage: `${import.meta.env.BASE_URL}assets/transformations/vikram-after.svg`,
   },
 ]
 

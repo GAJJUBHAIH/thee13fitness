@@ -42,4 +42,4 @@ export const ENV = {
   paymentsApi: import.meta.env.VITE_PAYMENTS_API,
 }
 
-export const asset = (path) => `/assets/${path}`
+export const asset = (path) => `${import.meta.env.BASE_URL}assets/${path}`
