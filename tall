@@ -1,0 +1,21 @@
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_API_KEY=
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_AUTH_DOMAIN=
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_PROJECT_ID=
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_STORAGE_BUCKET=
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_MESSAGING_SENDER_ID=
+[35m.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_APP_ID=
+[35mdocs/ENVIRONMENT_SETUP.md[m[36m:[m| [1;31mVITE_FIREBASE[m_* | frontend/.env | Yes (restrict by domain) |
+[35mdocs/FIREBASE_SETUP.md[m[36m:[m4. Project settings -> add a Web app, copy config into [1;31mVITE_FIREBASE[m_* in frontend/.env.
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_API_KEY=
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_AUTH_DOMAIN=
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_PROJECT_ID=
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_STORAGE_BUCKET=
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_MESSAGING_SENDER_ID=
+[35mfrontend/.env.example[m[36m:[m[1;31mVITE_FIREBASE[m_APP_ID=
+[35mfrontend/src/constants/config.js[m[36m:[m    apiKey: import.meta.env.[1;31mVITE_FIREBASE[m_API_KEY,
+[35mfrontend/src/constants/config.js[m[36m:[m    authDomain: import.meta.env.[1;31mVITE_FIREBASE[m_AUTH_DOMAIN,
+[35mfrontend/src/constants/config.js[m[36m:[m    projectId: import.meta.env.[1;31mVITE_FIREBASE[m_PROJECT_ID,
+[35mfrontend/src/constants/config.js[m[36m:[m    storageBucket: import.meta.env.[1;31mVITE_FIREBASE[m_STORAGE_BUCKET,
+[35mfrontend/src/constants/config.js[m[36m:[m    messagingSenderId: import.meta.env.[1;31mVITE_FIREBASE[m_MESSAGING_SENDER_ID,
+[35mfrontend/src/constants/config.js[m[36m:[m    appId: import.meta.env.[1;31mVITE_FIREBASE[m_APP_ID,
+[35mfrontend/src/constants/config.js[m[36m:[m    measurementId: import.meta.env.[1;31mVITE_FIREBASE[m_MEASUREMENT_ID,
