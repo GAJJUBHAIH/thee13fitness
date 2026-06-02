@@ -20,7 +20,7 @@ export default function AdminDashboard() {
 
   const fetchTokens = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const apiUrl = import.meta.env.VITE_API_URL;
       const response = await fetch(`${apiUrl}/admin/tokens`);
       const data = await response.json();
       if (Array.isArray(data)) {
@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   };
 
   const handleDownloadReport = (type) => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const apiUrl = import.meta.env.VITE_API_URL;
     window.open(`${apiUrl}/admin/reports/${type}`, '_blank');
   };
 

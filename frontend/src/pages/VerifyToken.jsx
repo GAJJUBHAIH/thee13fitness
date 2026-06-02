@@ -16,7 +16,7 @@ export default function VerifyToken() {
     setResult(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+      const apiUrl = import.meta.env.VITE_API_URL;
       const response = await fetch(`${apiUrl}/tokens/verify/${tokenId}`);
       const data = await response.json();
 

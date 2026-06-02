@@ -88,7 +88,7 @@ export default function Checkout() {
     setFeedback('Processing your order and generating tokens...')
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+      const apiUrl = import.meta.env.VITE_API_URL
       
       // Create a token for each item in the cart
       const promises = items.map(item => {

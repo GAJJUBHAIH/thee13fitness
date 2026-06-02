@@ -21,7 +21,7 @@ export default function Membership() {
     setFeedback(`Processing purchase for ${plan.title} - ${tier.label}...`)
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+      const apiUrl = import.meta.env.VITE_API_URL
       const response = await fetch(`${apiUrl}/payments/create-mock-purchase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

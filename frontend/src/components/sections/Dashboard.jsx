@@ -33,7 +33,7 @@ export default function Dashboard() {
     if (user?.uid) {
       const fetchTokens = async () => {
         try {
-          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+          const apiUrl = import.meta.env.VITE_API_URL
           const res = await fetch(`${apiUrl}/tokens/user/${user.uid}`)
           const data = await res.json()
           if (Array.isArray(data)) setUserTokens(data)
