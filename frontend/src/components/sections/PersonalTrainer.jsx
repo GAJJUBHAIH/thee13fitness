@@ -1,4 +1,5 @@
 import { SectionHeader, Card, Button } from '../ui/index.js'
+import { Link } from 'react-router-dom'
 import { TRAINER_PLANS } from '../../data/index.js'
 
 export default function PersonalTrainer() {
@@ -12,7 +13,7 @@ export default function PersonalTrainer() {
             <p className="mt-1 text-sm text-white/50">{p.sessions} Sessions</p>
             <p className="mt-5 font-display text-4xl font-black neon-text">₹{p.price}</p>
             <p className="mt-1 text-xs text-white/40">≈ ₹{Math.round(p.price / p.sessions)} / session</p>
-            <Button as="a" href="#contact" className="mt-6 w-full">Book Now</Button>
+            <Button as={Link} to="/login" className="mt-6 w-full">Book Now</Button>
           </Card>
         ))}
       </div>

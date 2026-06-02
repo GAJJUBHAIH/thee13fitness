@@ -31,7 +31,7 @@ export async function payWithRazorpay({ amount, name, email, plan, onSuccess, on
       key: ENV.razorpayKeyId,
       amount: order.amount,
       currency: order.currency,
-      name: 'ThreeB Fitness',
+      name: 'Three13 Fitness',
       description: plan,
       order_id: order.id,
       prefill: { name, email },

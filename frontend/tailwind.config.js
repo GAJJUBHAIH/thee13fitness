@@ -4,16 +4,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        neon: { DEFAULT: '#39FF14', soft: '#7CFF6B', dim: '#1f8f12' },
-        ink: { 900: '#050607', 800: '#0a0d0f', 700: '#11161a', 600: '#1a2127' },
+        neon: {
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          soft: 'rgb(var(--color-primary-soft) / <alpha-value>)',
+          dim: 'rgb(var(--color-primary-dim) / <alpha-value>)',
+        },
+        ink: {
+          900: 'rgb(var(--color-bg) / <alpha-value>)',
+          800: 'rgb(var(--color-surface) / <alpha-value>)',
+          700: 'rgb(var(--color-surface) / 0.8)',
+          600: 'rgb(var(--color-surface) / 0.6)',
+        },
       },
       fontFamily: {
         display: ['"Orbitron"', 'system-ui', 'sans-serif'],
         body: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        neon: '0 0 8px #39FF14, 0 0 24px rgba(57,255,20,0.45)',
-        'neon-sm': '0 0 4px #39FF14, 0 0 10px rgba(57,255,20,0.35)',
+        neon: '0 0 8px rgb(var(--color-primary)), 0 0 24px rgba(var(--color-primary), 0.45)',
+        'neon-sm': '0 0 4px rgb(var(--color-primary)), 0 0 10px rgba(var(--color-primary), 0.35)',
       },
       keyframes: {
         floaty: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },

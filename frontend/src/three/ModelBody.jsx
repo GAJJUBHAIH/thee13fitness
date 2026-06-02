@@ -2,16 +2,17 @@ import { Suspense, useRef, useEffect } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 
-const MODEL_URL = '/assets/models/gym-character.glb'
+const MALE_MODEL_URL = '/assets/models/gym-character.glb'
+const FEMALE_MODEL_URL = '/assets/models/female.glb'
 
 /**
- * Loads the realistic single-mesh GLB human model and rotates it
- * smoothly to show front/back. Muscle selection is handled separately
- * via selector chips (the model is one mesh, not per-muscle meshes).
+ * Loads the gender-specific GLB human model and rotates it
+ * smoothly to show front/back. Muscle selection is not used here.
  */
 function Model({ side, gender }) {
   const group = useRef()
-  const { scene, animations } = useGLTF(MODEL_URL)
+  const modelUrl = gender === 'female' ? FEMALE_MODEL_URL : MALE_MODEL_URL
+  const { scene, animations } = useGLTF(modelUrl)
   const { actions } = useAnimations(animations, group)
 
   useEffect(() => {
@@ -43,4 +44,5 @@ export default function ModelBody({ side, gender }) {
   )
 }
 
-useGLTF.preload(MODEL_URL)
+useGLTF.preload(MALE_MODEL_URL)
+useGLTF.preload(FEMALE_MODEL_URL)

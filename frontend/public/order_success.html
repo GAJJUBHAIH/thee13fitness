@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Order Confirmed</title>
+<style>
+body{background:#0f172a;color:white;font-family:Arial;text-align:center;padding:40px}
+.box{background:#1e293b;padding:30px;border-radius:12px;max-width:700px;margin:auto}
+img{width:180px}
+a{display:inline-block;margin-top:20px;background:#06b6d4;color:white;padding:12px 20px;border-radius:8px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="box">
+<img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="Order Confirmed">
+<h1>Order Confirmed Successfully!</h1>
+<p>Your product will be delivered in 2-3 days.</p>
+<p><b>Delivery Address:</b><br>{{ delivery_address }}</p>
+<p><b>Total Amount:</b> ₹{{ total }}</p>
+<a href="/">Continue Shopping</a>
+</div>
+</body>
+</html>

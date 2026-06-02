@@ -7,10 +7,10 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-lg border border-neon font-display text-neon shadow-neon-sm">
-              3B
+              🌲
             </span>
             <span className="font-display text-lg font-bold">
-              Three<span className="neon-text">B</span> Fitness
+              three<span className="neon-text">13</span> Fitness
             </span>
           </div>
           <p className="mt-3 text-sm text-white/50">{BRAND.tagline}.</p>
@@ -39,12 +39,15 @@ export default function Footer() {
           <ul className="mt-3 space-y-2 text-sm text-white/60">
             <li>{CONTACT.email}</li>
             <li>{CONTACT.phone}</li>
-            <li>ThreeB Fitness, India</li>
+            <li>Three13 Fitness, India</li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/5 py-5 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} ThreeB Fitness. All rights reserved.
+      <div className="border-t border-white/5 py-5">
+        <div className="mx-auto max-w-7xl px-5 text-center text-xs text-white/40">
+          <p>© {new Date().getFullYear()} three13 Fitness. All rights reserved.</p>
+          <p className="mt-2 text-neon/60">Developed by <span className="font-semibold text-neon">gajjubhai</span></p>
+        </div>
       </div>
     </footer>
   )

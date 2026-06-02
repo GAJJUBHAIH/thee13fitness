@@ -1,4 +1,4 @@
-# three13 — ThreeB Fitness (Monorepo)
+# three13 — three 13 fitness (Monorepo)
 
 Premium futuristic gym platform. **Health is Real Wealth.**
 
@@ -6,6 +6,7 @@ Frontend (React + Vite + Tailwind + React Three Fiber + Framer Motion + GSAP + R
 and a Node/Express payments backend (Razorpay), in one repository.
 
 ## Structure
+
 ```
 three13/
 ├── frontend/   # React web app (Vite)
@@ -17,6 +18,7 @@ three13/
 ```
 
 ## Features
+
 - Interactive 3D Muscle Explorer (procedural, 14 muscle groups, front/back + male/female toggle)
 - Membership & Personal Trainer plans, Services, Transformations, Trainers
 - BMI Calculator + rule-based AI Fitness Planner
@@ -26,7 +28,9 @@ three13/
 - GSAP scroll animations, PWA support, SEO meta + JSON-LD
 
 ## Quick start (local)
+
 ### Frontend
+
 ```bash
 cd frontend
 cp .env.example .env   # fill VITE_* values (optional; app runs without them)
@@ -35,6 +39,7 @@ npm run dev            # http://localhost:5173
 ```
 
 ### Backend
+
 ```bash
 cd backend
 cp .env.example .env   # add RAZORPAY_KEY_SECRET (server only)
@@ -43,11 +48,13 @@ npm run dev            # http://localhost:4000
 ```
 
 ## Lint / build
+
 ```bash
 cd frontend && npm run lint && npm run build && npm run preview
 ```
 
 ## Docker (both services)
+
 ```bash
 cp .env.example backend/.env
 docker compose up --build
@@ -55,8 +62,10 @@ docker compose up --build
 ```
 
 ## Docs
+
 See `docs/ENVIRONMENT_SETUP.md`, `docs/FIREBASE_SETUP.md`, `docs/DEPLOYMENT.md`, `docs/PRODUCTION_CHECKLIST.md`.
 
 ## Security
+
 - Razorpay **key secret** lives only in `backend/.env`; payment signatures are verified server-side.
 - Restrict the Firebase API key by domain. Firestore uses default-deny rules (`firestore.rules`).

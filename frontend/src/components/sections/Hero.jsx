@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import BodyScene from '../../three/BodyScene.jsx'
 import MusclePanel from './MusclePanel.jsx'
-import { Toggle } from '../ui/index.js'
+import { Button, Toggle, ErrorBoundary } from '../ui/index.js'
 import { BRAND } from '../../constants/index.js'
 import { MUSCLES } from '../../data/index.js'
 
@@ -30,6 +31,15 @@ export default function Hero() {
             <Toggle label="Gender" options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }]} value={gender} onChange={setGender} />
           </div>
 
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button as={Link} to="/store" variant="solid">
+              Visit Gym Store
+            </Button>
+            <Button as="a" href="#membership" variant="ghost">
+              Explore Membership
+            </Button>
+          </div>
+
           <p className="mt-5 text-xs uppercase tracking-wider text-white/40">Select a muscle group</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {MUSCLE_IDS.map((id) => (
@@ -49,7 +59,11 @@ export default function Hero() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="order-1 h-[60vh] w-full lg:order-2 lg:h-[80vh]">
-          <BodyScene side={side} gender={gender} />
+          <ErrorBoundary>
+            <Suspense fallback={<div className="flex h-full items-center justify-center text-neon">Loading 3D Engine...</div>}>
+              <BodyScene side={side} gender={gender} />
+            </Suspense>
+          </ErrorBoundary>
         </motion.div>
       </div>
 

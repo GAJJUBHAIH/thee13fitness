@@ -23,10 +23,10 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
         <Link to="/" className="flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-lg border border-neon font-display text-neon shadow-neon-sm">
-            3B
+            🌲
           </span>
           <span className="font-display text-lg font-bold tracking-wider">
-            Three<span className="neon-text">B</span> Fitness
+            three<span className="neon-text">13</span> Fitness
           </span>
         </Link>
 

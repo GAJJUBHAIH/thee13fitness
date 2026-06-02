@@ -58,12 +58,14 @@ function MusclePart({ part, baseColor, hovered, selected, onHover, onSelect }) {
       onClick={(e) => { e.stopPropagation(); onSelect(part.id) }}
     >
       <Geometry geo={part.geo} />
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={isActive ? NEON : baseColor}
         emissive={isActive ? NEON : '#000000'}
-        emissiveIntensity={isActive ? 0.6 : 0}
-        roughness={0.5}
-        metalness={0.3}
+        emissiveIntensity={isActive ? 0.8 : 0}
+        roughness={isActive ? 0.2 : 0.6}
+        metalness={isActive ? 0.8 : 0.5}
+        clearcoat={0.3}
+        clearcoatRoughness={0.2}
       />
     </mesh>
   )

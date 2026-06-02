@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none">
+  <rect width="400" height="500" rx="32" fill="#111827"/>
+  <rect x="24" y="24" width="352" height="352" rx="24" fill="#0F172A"/>
+  <text x="200" y="220" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="#F8FAFC">Vikram</text>
+  <text x="200" y="270" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#CBD5E1">Before</text>
+  <text x="200" y="340" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" fill="#94A3B8">80 kg deadlift</text>
+</svg>

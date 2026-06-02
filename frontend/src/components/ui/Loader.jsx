@@ -19,7 +19,7 @@ export default function Loader() {
           transition={{ repeat: Infinity, duration: 1.6 }}
           className="mt-5 font-display text-xl font-bold"
         >
-          Three<span className="neon-text">B</span> Fitness
+          Three13 Fitness
         </motion.p>
         <p className="mt-1 text-xs tracking-widest text-white/40">HEALTH IS REAL WEALTH</p>
       </div>

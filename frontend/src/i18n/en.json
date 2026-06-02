@@ -1,0 +1,31 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "trainers": "Trainers",
+      "store": "Store",
+      "login": "Login",
+      "signup": "Sign Up",
+      "dashboard": "Dashboard",
+      "logout": "Logout",
+      "welcome": "Welcome"
+    },
+    "hero": {
+      "title": "Build a Body",
+      "titleHighlight": "Worth Flexing",
+      "subtitle": "Explore every muscle group in 3D, then train it with a plan engineered for results.",
+      "quote": "Health is Real Wealth.",
+      "visitStore": "Visit Gym Store",
+      "exploreMembership": "Explore Membership",
+      "selectMuscle": "Select a muscle group",
+      "tip": "Tip: drag to rotate the model 360°. Use the toggles for front/back & gender.",
+      "bodySide": "Body side",
+      "front": "Front",
+      "back": "Back",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female"
+    }
+  }
+}

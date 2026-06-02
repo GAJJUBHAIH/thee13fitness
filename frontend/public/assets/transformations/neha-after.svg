@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none">
+  <rect width="400" height="500" rx="32" fill="#073F1B"/>
+  <rect x="24" y="24" width="352" height="352" rx="24" fill="#116530"/>
+  <text x="200" y="220" text-anchor="middle" font-family="Inter, sans-serif" font-size="32" fill="#ECFCCB">Neha</text>
+  <text x="200" y="270" text-anchor="middle" font-family="Inter, sans-serif" font-size="22" fill="#D9F99D">After</text>
+  <text x="200" y="340" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" fill="#A3E635">+7 kg lean muscle</text>
+</svg>

@@ -1,5 +1,6 @@
 export { default as Home } from './Home.jsx'
 export { default as Login } from './Login.jsx'
 export { default as Signup } from './Signup.jsx'
+export { default as Help } from './Help.jsx'
 export { default as DashboardPage } from './DashboardPage.jsx'
 export { default as NotFound } from './NotFound.jsx'
