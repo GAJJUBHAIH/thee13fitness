@@ -29,10 +29,10 @@ export default function AIPlanner() {
       <div className="grid gap-8 lg:grid-cols-2">
         <form onSubmit={submit} className="glass rounded-3xl p-7">
           <div className="grid grid-cols-2 gap-4">
-            <Input id="age" label="Age" type="number" value={form.age} onChange={set('age')} placeholder="25" />
+            <Input id="age" label="Age" type="number" value={form.age} onChange={set('age')} placeholder="25" required />
             <Select id="gender" label="Gender" value={form.gender} onChange={set('gender')} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }]} />
-            <Input id="height" label="Height (cm)" type="number" value={form.height} onChange={set('height')} placeholder="175" />
-            <Input id="weight" label="Weight (kg)" type="number" value={form.weight} onChange={set('weight')} placeholder="70" />
+            <Input id="height" label="Height (cm)" type="number" value={form.height} onChange={set('height')} placeholder="175" required />
+            <Input id="weight" label="Weight (kg)" type="number" value={form.weight} onChange={set('weight')} placeholder="70" required />
           </div>
           <div className="mt-4"><Select id="goal" label="Goal" value={form.goal} onChange={set('goal')} options={GOALS} /></div>
           <Button type="submit" className="mt-6 w-full">Generate Plan</Button>

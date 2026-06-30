@@ -4,6 +4,7 @@ import { SectionHeader, Input, Button } from '../ui/index.js'
 import WeightChart from './WeightChart.jsx'
 import CaloriesChart from './CaloriesChart.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { pb, isPocketBaseEnabled } from '../../services/pocketbase.js'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -27,21 +28,33 @@ export default function Dashboard() {
 
   const [newWeight, setNewWeight] = useState('')
   const [measurements, setMeasurements] = useState({ chest: 98, waist: 82, arms: 36, thighs: 56 })
-  const [userTokens, setUserTokens] = useState([])
+  const [userOrders, setUserOrders] = useState([])
+  const [offlineData, setOfflineData] = useState({
+    membership_plan: '',
+    membership_start: '',
+    membership_end: ''
+  })
 
   useEffect(() => {
-    if (user?.uid) {
-      const fetchTokens = async () => {
+    if (user?.id) {
+      const fetchOrders = async () => {
         try {
-          const apiUrl = import.meta.env.VITE_API_URL
-          const res = await fetch(`${apiUrl}/tokens/user/${user.uid}`)
-          const data = await res.json()
-          if (Array.isArray(data)) setUserTokens(data)
+          const records = await pb.collection('orders').getFullList({
+            filter: `user = "${user.id}"`,
+            sort: '-created'
+          })
+          setUserOrders(records)
         } catch (e) {
-          console.error("Failed to fetch tokens", e)
+          console.error("Failed to fetch orders", e)
         }
       }
-      fetchTokens()
+      fetchOrders()
+      
+      setOfflineData({
+        membership_plan: user.membership_plan || '',
+        membership_start: user.membership_start ? user.membership_start.substring(0, 10) : '',
+        membership_end: user.membership_end ? user.membership_end.substring(0, 10) : ''
+      })
     }
   }, [user])
 
@@ -77,6 +90,34 @@ export default function Dashboard() {
     document.body.removeChild(a);
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!isPocketBaseEnabled) return alert("Avatar upload requires backend connection.")
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      await pb.collection('users').update(user.id, formData)
+      // Refresh auth to get new avatar URL
+      await pb.collection('users').authRefresh()
+    } catch (err) {
+      console.error(err)
+      alert("Failed to upload profile picture.")
+    }
+  }
+
+  const handleUpdateOfflineData = async (e) => {
+    e.preventDefault()
+    try {
+      await pb.collection('users').update(user.id, offlineData)
+      await pb.collection('users').authRefresh()
+      alert("Membership details updated!")
+    } catch (err) {
+      console.error(err)
+      alert("Failed to update membership details.")
+    }
+  }
+
   return (
     <section id="dashboard" className="relative mx-auto max-w-7xl px-5 py-24">
       <SectionHeader eyebrow="Members Only" title="Member Dashboard" />
@@ -86,8 +127,14 @@ export default function Dashboard() {
         {user && (
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass rounded-3xl p-6 lg:col-span-4 flex justify-between items-center flex-wrap gap-4">
              <div className="flex items-center gap-4">
-               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neon/20 border-2 border-neon text-neon text-2xl font-bold">
-                 {(user.displayName || 'U').charAt(0).toUpperCase()}
+              <div className="group relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-neon bg-neon/20 text-2xl font-bold text-neon cursor-pointer">
+                 {user.avatar ? (
+                   <img src={`${pb.baseUrl}/api/files/users/${user.id}/${user.avatar}`} alt="Avatar" className="h-full w-full object-cover" />
+                 ) : (
+                   (user.displayName || user.name || 'U').charAt(0).toUpperCase()
+                 )}
+                 <input type="file" accept="image/*" onChange={handleAvatarUpload} className="absolute inset-0 cursor-pointer opacity-0" title="Upload Profile Picture" />
+                 <div className="absolute inset-0 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center text-xs text-white">Edit</div>
                </div>
                <div>
                  <h2 className="font-display text-2xl font-bold neon-text">{user.displayName || 'Premium User'}</h2>
@@ -108,27 +155,72 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* My Tokens / Memberships */}
+        {/* Offline Gym Access Section */}
+        {user?.offline_access && (
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass rounded-3xl p-6 lg:col-span-4">
+            <h3 className="font-display text-lg font-bold neon-text">Offline Gym Access Details</h3>
+            <form onSubmit={handleUpdateOfflineData} className="mt-6 grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Membership Plan</label>
+                <select 
+                  value={offlineData.membership_plan}
+                  onChange={e => setOfflineData({...offlineData, membership_plan: e.target.value})}
+                  className="w-full rounded-xl border border-white/10 bg-ink-700/60 px-4 py-2.5 outline-none focus:border-neon"
+                >
+                  <option value="">Select Plan</option>
+                  <option value="1 Month">1 Month</option>
+                  <option value="3 Months">3 Months</option>
+                  <option value="6 Months">6 Months</option>
+                  <option value="1 Year">1 Year</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">Start Date</label>
+                <input 
+                  type="date"
+                  value={offlineData.membership_start}
+                  onChange={e => setOfflineData({...offlineData, membership_start: e.target.value})}
+                  className="w-full rounded-xl border border-white/10 bg-ink-700/60 px-4 py-2.5 outline-none focus:border-neon text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white/60 mb-2">End Date</label>
+                <input 
+                  type="date"
+                  value={offlineData.membership_end}
+                  onChange={e => setOfflineData({...offlineData, membership_end: e.target.value})}
+                  className="w-full rounded-xl border border-white/10 bg-ink-700/60 px-4 py-2.5 outline-none focus:border-neon text-white"
+                />
+              </div>
+              <div className="md:col-span-3 flex justify-end mt-2">
+                <Button type="submit">Save Membership Details</Button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {/* Order History */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass rounded-3xl p-6 lg:col-span-1 overflow-hidden flex flex-col max-h-[400px]">
-          <h3 className="font-display text-lg font-bold neon-text shrink-0">My Purchases</h3>
+          <h3 className="font-display text-lg font-bold neon-text shrink-0">Order History</h3>
           <div className="mt-6 flex-1 overflow-y-auto pr-2 space-y-4">
-            {userTokens.length > 0 ? userTokens.map(t => (
-              <div key={t.tokenId} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm relative group">
-                <p className="font-bold text-neon mb-1">{t.itemName}</p>
-                <p className="font-mono text-xs text-white/60">ID: {t.tokenId}</p>
+            {userOrders.length > 0 ? userOrders.map(order => (
+              <div key={order.id} className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm relative group">
+                <p className="font-bold text-neon mb-1">{order.orderId}</p>
+                <p className="font-mono text-xs text-white/60">₹{order.amount.toFixed(2)} - {order.products?.length || 0} items</p>
                 <div className="flex justify-between items-center mt-3">
-                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${t.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                    {t.status}
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${order.paymentStatus === 'paid' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                    {order.paymentStatus}
                   </span>
-                  {t.qrCodeData && (
-                    <button onClick={() => downloadQRCode(t)} className="text-xs text-neon hover:text-white underline">
-                      QR Code
-                    </button>
-                  )}
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${order.deliveryStatus === 'delivered' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    {order.deliveryStatus}
+                  </span>
+                  <button onClick={() => alert('Invoice PDF downloaded!')} className="text-xs text-neon hover:text-white underline">
+                    Invoice
+                  </button>
                 </div>
               </div>
             )) : (
-              <div className="text-white/40 text-sm italic py-4">No active tokens or memberships.</div>
+              <div className="text-white/40 text-sm italic py-4">No order history available.</div>
             )}
           </div>
         </motion.div>
@@ -179,6 +271,34 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Wishlist & Saved Addresses */}
+        <div className="glass rounded-3xl p-6 lg:col-span-2">
+          <h3 className="font-display text-lg font-bold neon-text">My Wishlist</h3>
+          <div className="mt-4 flex flex-col gap-3">
+             <div className="rounded-xl border border-white/10 bg-white/5 p-4 flex justify-between items-center text-sm">
+                <span>Premium Protein Whey 2kg</span>
+                <button className="text-neon hover:text-white underline text-xs">Add to Cart</button>
+             </div>
+             <div className="rounded-xl border border-white/10 bg-white/5 p-4 flex justify-between items-center text-sm">
+                <span>Yoga Mat Pro</span>
+                <button className="text-neon hover:text-white underline text-xs">Add to Cart</button>
+             </div>
+          </div>
+        </div>
+        <div className="glass rounded-3xl p-6 lg:col-span-2">
+          <h3 className="font-display text-lg font-bold neon-text">Saved Addresses</h3>
+          <div className="mt-4 flex flex-col gap-3">
+             <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm relative">
+                <span className="absolute top-4 right-4 bg-neon/10 text-neon px-2 py-0.5 rounded text-[10px] uppercase font-bold">Default</span>
+                <p className="font-bold text-white mb-1">Home</p>
+                <p className="text-white/60">A-142, Sector 4, Noida, UP, 201301</p>
+             </div>
+             <button className="w-full rounded-xl border border-white/10 bg-transparent p-4 text-sm text-neon hover:bg-white/5 transition-colors border-dashed text-center">
+               + Add New Address
+             </button>
           </div>
         </div>
 

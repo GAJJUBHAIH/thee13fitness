@@ -30,26 +30,36 @@ export default function Signup() {
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!form.agreed) {
-      setFeedback('You must agree to the Terms & Conditions and Privacy Policy.')
+    
+    if (!form.name || !form.username || !form.email || !form.mobile || !form.password || !form.confirmPassword || !form.role) {
+      setFeedback('Please fill out all fields.')
       return
     }
     if (!isPasswordValid) {
-      setFeedback('Please complete the password strength requirements.')
+      setFeedback('Please complete all password strength requirements.')
       return
     }
     if (!passwordsMatch) {
       setFeedback('Passwords do not match.')
       return
     }
+    if (!form.agreed) {
+      setFeedback('You must agree to the Terms & Conditions and Privacy Policy.')
+      return
+    }
 
     setFeedback('')
     setLoading(true)
     try {
-      await signup(form.name, form.email, form.password)
-      nav('/dashboard')
+      await signup(form.name, form.email, form.password, form.role, form.username, form.mobile)
+      nav('/')
     } catch (err) {
-      setFeedback(err.message)
+      if (err.response && err.response.data) {
+        const messages = Object.values(err.response.data).map(d => d.message).join(' ')
+        setFeedback(err.message + (messages ? ' ' + messages : ''))
+      } else {
+        setFeedback(err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -64,7 +74,7 @@ export default function Signup() {
     setLoading(true)
     try {
       await googleLogin()
-      nav('/dashboard')
+      nav('/')
     } catch (err) {
       setFeedback(err?.message || 'Google sign-up failed. Please try again.')
     } finally {
@@ -109,8 +119,8 @@ export default function Signup() {
               onChange={set('role')}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-ink-900 px-4 py-3 text-white outline-none focus:border-neon"
             >
-              <option>User – Browse & Order products</option>
-              <option>Trainer – Manage workouts</option>
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
             </select>
           </div>
           <Input
@@ -155,7 +165,7 @@ export default function Signup() {
 
         {feedback && <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">{feedback}</p>}
 
-        <Button type="submit" className="mt-6 w-full" disabled={loading || !canSubmit}>
+        <Button type="submit" className="mt-6 w-full" disabled={loading}>
           {loading ? 'Creating account...' : 'Create Account'}
         </Button>
 

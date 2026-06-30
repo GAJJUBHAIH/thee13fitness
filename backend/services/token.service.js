@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../config/firebaseAdmin.js';
+import { pb } from '../config/pocketbaseAdmin.js';
 import QRCode from 'qrcode';
 
 /**
@@ -21,13 +21,16 @@ function generateTokenString(type) {
  * @returns {Promise<boolean>}
  */
 async function isTokenUnique(tokenId) {
-  if (!db) return true; // Fallback
-  const doc = await db.collection('tokens').doc(tokenId).get();
-  return !doc.exists;
+  try {
+    await pb.collection('tokens').getFirstListItem(`tokenId="${tokenId}"`);
+    return false; // Exists
+  } catch (err) {
+    return true; // Does not exist
+  }
 }
 
 /**
- * Generates a unique token and saves it to Firestore.
+ * Generates a unique token and saves it to PocketBase.
  * @param {Object} data Token details
  * @returns {Promise<Object>} The generated token object
  */
@@ -68,7 +71,7 @@ export async function createAndSaveToken(data) {
     amount: data.amount || 0,
     quantity: data.quantity || 1,
     status: 'active',
-    purchaseDate: new Date(),
+    purchaseDate: new Date().toISOString(),
     qrCodeData,
     ...(data.extraData || {})
   };
@@ -77,30 +80,30 @@ export async function createAndSaveToken(data) {
     // Add 1 month by default if not specified
     const expiry = new Date();
     expiry.setMonth(expiry.getMonth() + 1);
-    tokenDoc.expiryDate = expiry;
+    tokenDoc.expiryDate = expiry.toISOString();
   }
 
-  if (db) {
-    await db.collection('tokens').doc(tokenId).set(tokenDoc);
+  try {
+    const record = await pb.collection('tokens').create(tokenDoc);
     
-    // Update users collection if needed
+    // PocketBase user collection doesn't have purchasedTokens by default, but if it did:
     if (data.userId && data.userId !== 'guest') {
-       const userRef = db.collection('users').doc(data.userId);
-       const userDoc = await userRef.get();
-       if (userDoc.exists) {
-          const userData = userDoc.data();
-          const purchasedTokens = userData.purchasedTokens || [];
-          if (!purchasedTokens.includes(tokenId)) {
-             purchasedTokens.push(tokenId);
-             await userRef.update({ purchasedTokens });
-          }
+       try {
+         const user = await pb.collection('users').getOne(data.userId);
+         const purchasedTokens = user.purchasedTokens || [];
+         if (!purchasedTokens.includes(record.id)) {
+            purchasedTokens.push(record.id);
+            await pb.collection('users').update(data.userId, { purchasedTokens });
+         }
+       } catch (e) {
+         console.warn('Could not update user purchasedTokens:', e.message);
        }
     }
-  } else {
-    console.warn('Firestore is not initialized. Token was generated but NOT saved to database.');
+    return record;
+  } catch (e) {
+    console.error('PocketBase error saving token:', e);
+    throw new Error('Failed to save token to database');
   }
-
-  return tokenDoc;
 }
 
 /**
@@ -108,17 +111,22 @@ export async function createAndSaveToken(data) {
  * @param {string} tokenId 
  */
 export async function getToken(tokenId) {
-  if (!db) return null;
-  const doc = await db.collection('tokens').doc(tokenId).get();
-  if (!doc.exists) return null;
-  return doc.data();
+  try {
+    return await pb.collection('tokens').getFirstListItem(`tokenId="${tokenId}"`);
+  } catch (err) {
+    return null;
+  }
 }
 
 /**
  * Retrieves all tokens (for admin)
  */
 export async function getAllTokens() {
-  if (!db) return [];
-  const snapshot = await db.collection('tokens').orderBy('purchaseDate', 'desc').get();
-  return snapshot.docs.map(doc => doc.data());
+  try {
+    return await pb.collection('tokens').getFullList({
+      sort: '-purchaseDate',
+    });
+  } catch (err) {
+    return [];
+  }
 }

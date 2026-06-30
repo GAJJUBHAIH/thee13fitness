@@ -1,125 +1,48 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import MainLayout from '../layouts/MainLayout.jsx'
 import { Button } from '../components/ui/index.js'
-import { payWithRazorpay } from '../services/payment.js'
+import { SkeletonCard } from '../components/ui/Skeleton.jsx'
+import { Reviews } from '../components/sections/index.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import SEO from '../components/SEO.jsx'
+import { pb } from '../services/pocketbase.js'
 
-const PRODUCTS = [
-  {
-    id: 'premium-barbell-set',
-    name: 'Premium Barbell Set',
-    category: 'Strength',
-    description: 'Heavy-duty barbell set built for serious lifting.',
-    price: 2999,
-    image: `${import.meta.env.BASE_URL}assets/store/barbell.jpg`,
-    soldOut: false,
-    icon: '🏋️',
-  },
-  {
-    id: 'resistance-band-kit',
-    name: 'Resistance Band Kit',
-    category: 'Accessories',
-    description: 'Durable resistance bands for every level of training.',
-    price: 899,
-    image: `${import.meta.env.BASE_URL}assets/store/resistance-bands.jpg`,
-    soldOut: false,
-    icon: '💪',
-  },
-  {
-    id: 'whey-protein-powder',
-    name: 'Whey Protein Powder',
-    category: 'Nutrition',
-    description: 'High-protein formula for muscle recovery.',
-    price: 1499,
-    image: `${import.meta.env.BASE_URL}assets/store/protein-powder.jpg`,
-    soldOut: true,
-    icon: '🥤',
-  },
-  {
-    id: 'shaker-bottle',
-    name: 'Premium Shaker Bottle',
-    category: 'Hydration',
-    description: 'Leak-proof shaker for pre-workout and protein mixes.',
-    price: 749,
-    image: `${import.meta.env.BASE_URL}assets/store/shaker-bottle.jpg`,
-    soldOut: false,
-    icon: '💧',
-  },
-  {
-    id: 'yoga-training-mat',
-    name: 'Yoga & Training Mat',
-    category: 'Recovery',
-    description: 'Non-slip mat for stretching, yoga, and floor workouts.',
-    price: 1299,
-    image: `${import.meta.env.BASE_URL}assets/store/yoga-mat.jpg`,
-    soldOut: false,
-    icon: '🧘',
-  },
-  {
-    id: 'kettlebell-set',
-    name: 'Cast Iron Kettlebells',
-    category: 'Strength',
-    description: 'Premium kettlebells for swings, squats and full-body training.',
-    price: 3999,
-    image: `${import.meta.env.BASE_URL}assets/store/kettlebells.jpg`,
-    soldOut: false,
-    icon: '🏋️',
-  },
-  {
-    id: 'gym-bag',
-    name: 'Gym Duffle Bag',
-    category: 'Apparel',
-    description: 'Water-resistant gym bag with compartments for shoes and gear.',
-    price: 1199,
-    image: `${import.meta.env.BASE_URL}assets/store/gym-bag.jpg`,
-    soldOut: false,
-    icon: '🎒',
-  },
-  {
-    id: 'training-shoes',
-    name: 'Training Shoes',
-    category: 'Apparel',
-    description: 'Lightweight gym shoes for cardio, lifting and training sessions.',
-    price: 2499,
-    image: `${import.meta.env.BASE_URL}assets/store/shoes.jpg`,
-    soldOut: false,
-    icon: '👟',
-  },
-  {
-    id: 'protein-bar',
-    name: 'Protein Snack Bars',
-    category: 'Nutrition',
-    description: 'High-protein bars for on-the-go energy and recovery.',
-    price: 399,
-    image: `${import.meta.env.BASE_URL}assets/store/protein-bar.jpg`,
-    soldOut: false,
-    icon: '🍫',
-  },
-  {
-    id: 'gym-poster',
-    name: 'Motivational Gym Poster',
-    category: 'Gear',
-    description: 'Premium wall poster to keep your workout space inspired.',
-    price: 599,
-    image: `${import.meta.env.BASE_URL}assets/store/gym-poster.png`,
-    soldOut: false,
-    icon: '🖼️',
-  },
-]
+const CATEGORIES = ['All', 'Supplements', 'Gear', 'Merch']
 
-const CATEGORIES = ['All', 'Strength', 'Accessories', 'Nutrition', 'Hydration', 'Recovery', 'Apparel', 'Gear']
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: (i) => ({
+    opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.5, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }
+  }),
+}
 
 export default function Store() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [cart, setCart] = useState([])
+  const [products, setProducts] = useState([])
   const [category, setCategory] = useState('All')
-  const [name, setName] = useState(user?.displayName || '')
-  const [email, setEmail] = useState(user?.email || '')
+  const [searchQuery, setSearchQuery] = useState('')
   const [feedback, setFeedback] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [galleryImages, setGalleryImages] = useState([])
-  const [uploadError, setUploadError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [addedId, setAddedId] = useState(null)
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await pb.collection('products').getFullList({ sort: '-created' })
+        setProducts(res)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
 
   useEffect(() => {
     const savedCart = window.localStorage.getItem('three13_cart')
@@ -136,45 +59,29 @@ export default function Store() {
     window.localStorage.setItem('three13_cart', JSON.stringify(cart))
   }, [cart])
 
-  useEffect(() => {
-    if (!user) {
-      setGalleryImages([])
-      return
-    }
-    const saved = window.localStorage.getItem(`three13_gallery_${user.uid || user.email}`)
-    if (saved) {
-      try {
-        setGalleryImages(JSON.parse(saved))
-      } catch {
-        setGalleryImages([])
-      }
-    } else {
-      setGalleryImages([])
-    }
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    window.localStorage.setItem(
-      `three13_gallery_${user.uid || user.email}`,
-      JSON.stringify(galleryImages)
-    )
-  }, [galleryImages, user])
-
   const filteredProducts = useMemo(
-    () => (category === 'All' ? PRODUCTS : PRODUCTS.filter((product) => product.category === category)),
-    [category]
+    () => {
+      let filtered = category === 'All' ? products : products.filter((p) => p.category === category);
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      }
+      return filtered;
+    },
+    [category, products, searchQuery]
   )
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
   const addToCart = (product) => {
-    if (product.soldOut) {
+    if (!product.active) {
       setFeedback('Sorry, this item is sold out.')
       return
     }
     setFeedback('')
+    setAddedId(product.id)
+    setTimeout(() => setAddedId(null), 1200)
     setCart((current) => {
       const existing = current.find((item) => item.id === product.id)
       if (existing) {
@@ -186,124 +93,69 @@ export default function Store() {
     })
   }
 
-  const gotoCheckout = () => {
-    if (!cart.length) {
-      setFeedback('Add at least one product before proceeding to checkout.')
-      return
-    }
-    window.localStorage.setItem('three13_checkout_cart', JSON.stringify(cart))
+  const navigateToCart = () => {
+    navigate('/cart')
+  }
+
+  const buyNow = (product) => {
+    if (!product.active) return;
+    window.localStorage.setItem('three13_checkout_cart', JSON.stringify([{ ...product, quantity: 1 }]))
     navigate('/checkout')
   }
 
-  const removeFromCart = (productId) => {
-    setCart((current) => current.filter((item) => item.id !== productId))
-  }
-
-  const updateQuantity = (productId, delta) => {
-    setCart((current) =>
-      current
-        .map((item) =>
-          item.id === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-        )
-        .filter((item) => item.quantity > 0)
-    )
-  }
-
-  const handleImageUpload = (event) => {
-    if (!user) {
-      setUploadError('Please log in to upload images.')
-      return
-    }
-    const file = event.target.files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Only image files are allowed.')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image size must be less than 5MB.')
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      setGalleryImages((current) => [
-        ...current,
-        {
-          id: `${file.name}-${Date.now()}`,
-          src: reader.result,
-          name: file.name,
-        },
-      ])
-      setUploadError('')
-      setFeedback('Image uploaded successfully!')
-      setTimeout(() => setFeedback(''), 3000)
-    }
-    reader.onerror = () => {
-      setUploadError('Failed to read file. Please try again.')
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const removeGalleryImage = (id) => {
-    setGalleryImages((current) => current.filter((image) => image.id !== id))
-  }
-
-  const handleCheckout = async (singleProduct = null) => {
-    const orderItems = singleProduct ? [{ ...singleProduct, quantity: 1 }] : cart
-    if (!orderItems.length) {
-      setFeedback('Please add at least one item to the cart.')
-      return
-    }
-    if (!name || !email) {
-      setFeedback('Enter your name and email before checkout.')
-      return
-    }
-
-    setLoading(true)
-    setFeedback('')
-
-    const amount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    const plan = orderItems.map((item) => `${item.name} x${item.quantity}`).join(', ')
-
-    await payWithRazorpay({
-      amount,
-      name,
-      email,
-      plan,
-      onSuccess: () => {
-        setLoading(false)
-        if (!singleProduct) setCart([])
-        setFeedback('Payment successful! Your gym items are confirmed.')
-      },
-      onError: (message) => {
-        setLoading(false)
-        setFeedback(message || 'Payment failed. Please try again.')
-      },
-    })
-  }
-
   return (
-    <main className="min-h-screen bg-ink-900 px-5 py-24 text-white">
-      <div className="mx-auto max-w-7xl space-y-10">
-        <section className="glass rounded-[2rem] border border-white/10 p-8 shadow-neon-sm">
-          <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:items-center">
-            <div>
-              <p className="text-sm uppercase tracking-[0.35em] text-neon">Gym Store</p>
-              <h1 className="mt-4 text-4xl font-display font-black sm:text-5xl">Shop premium gym essentials built for performance.</h1>
-              <p className="mt-4 max-w-2xl text-sm text-white/70">
-                Browse gym gear, recovery tools, and hydration accessories. Add to cart, adjust quantities, and pay safely with Razorpay.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
+    <MainLayout>
+      <SEO title="Store - THREE13 Fitness" description="Shop premium gym gear, supplements, and fitness accessories." />
+      <div className="min-h-screen bg-ink-900 px-5 pt-24 pb-12 text-white relative">
+        {/* Ambient gradient background */}
+        <div className="absolute inset-0 gradient-mesh pointer-events-none" />
+
+        {/* Store Header (Flipkart Style) */}
+        <div className="relative mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-2xl p-4 shadow-neon-sm mb-8 backdrop-blur-sm">
+          <div className="flex-1 w-full relative">
+            <input
+              type="text"
+              placeholder="Search for supplements, gear, and more..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-ink-900 border border-white/20 rounded-xl px-4 py-3 pl-11 text-white focus:outline-none focus:border-neon transition-all duration-300 focus:shadow-neon-sm"
+            />
+            <svg className="w-5 h-5 absolute left-4 top-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+          <button
+            onClick={navigateToCart}
+            className="flex items-center gap-2 bg-neon text-ink-900 font-bold px-6 py-3 rounded-xl hover:shadow-neon transition-all duration-300 shrink-0 relative active:scale-95"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <span>Cart</span>
+            {itemCount > 0 && (
+              <motion.span
+                key={itemCount}
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full border-2 border-ink-900 font-bold"
+              >
+                {itemCount}
+              </motion.span>
+            )}
+          </button>
+        </div>
+
+        <div className="relative mx-auto max-w-7xl flex flex-col md:flex-row gap-8">
+          {/* Sidebar / Filters */}
+          <aside className="md:w-64 shrink-0 space-y-6 hidden md:block mt-8">
+            <div className="glass rounded-2xl p-6 shadow-neon-sm border border-white/10 sticky top-24">
+              <h2 className="text-xl font-bold uppercase tracking-wider text-neon mb-4">Categories</h2>
+              <div className="space-y-2 flex flex-col">
                 {CATEGORIES.map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => setCategory(item)}
-                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-neon ${
+                    className={`text-left px-4 py-2.5 rounded-xl transition-all duration-300 font-medium ${
                       category === item
-                        ? 'border-neon bg-neon text-ink-900 shadow-neon-sm'
-                        : 'border-white/15 text-white/70 hover:border-neon/60 hover:text-neon'
+                        ? 'bg-neon/10 text-neon border border-neon/30 shadow-neon-sm'
+                        : 'text-white/60 hover:bg-white/5 hover:text-white hover:translate-x-1'
                     }`}
                   >
                     {item}
@@ -311,193 +163,119 @@ export default function Store() {
                 ))}
               </div>
             </div>
+          </aside>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-neon-sm">
-              <p className="text-sm uppercase tracking-[0.35em] text-neon">Quick cart</p>
-              <div className="mt-5 space-y-4 text-sm text-white/70">
-                <div className="flex items-center justify-between gap-4 rounded-3xl bg-white/5 px-4 py-4">
-                  <div>
-                    <p className="font-semibold text-white">Items</p>
-                    <p className="text-xs text-white/50">Products in cart</p>
-                  </div>
-                  <span className="rounded-full bg-neon/10 px-3 py-1 text-sm text-neon">{itemCount}</span>
-                </div>
-                <div className="flex items-center justify-between gap-4 rounded-3xl bg-white/5 px-4 py-4">
-                  <div>
-                    <p className="font-semibold text-white">Total</p>
-                    <p className="text-xs text-white/50">Secure checkout amount</p>
-                  </div>
-                  <span className="text-xl font-bold text-neon">₹{total}</span>
-                </div>
-                <Button onClick={() => handleCheckout()} variant="solid" className="w-full" disabled={loading || !cart.length}>
-                  {loading ? 'Processing...' : 'Checkout Cart'}
-                </Button>
-                <Button onClick={gotoCheckout} variant="ghost" className="w-full mt-3" disabled={!cart.length}>
-                  Continue to Checkout
-                </Button>
+          {/* Main Content */}
+          <div className="flex-1 space-y-8">
+            <header className="flex flex-col gap-2">
+              <h1 className="text-3xl font-display font-black">Gym Store</h1>
+              <p className="text-sm text-white/60">Equip yourself with premium gear and supplements.</p>
+
+              {/* Mobile categories */}
+              <div className="md:hidden mt-4 flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
+                {CATEGORIES.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setCategory(item)}
+                    className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                      category === item
+                        ? 'bg-neon text-ink-900 shadow-neon-sm'
+                        : 'bg-white/5 text-white/70 border border-white/10 hover:border-neon/30'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
-        </section>
+            </header>
 
-        <section className="grid gap-6 xl:grid-cols-[2fr_1fr]">
-          <div className="space-y-6">
-            <div className="grid gap-5 md:grid-cols-2">
-              {filteredProducts.map((product) => (
-                <article key={product.id} className="glass rounded-3xl border border-white/10 p-6 shadow-neon-sm transition hover:-translate-y-1">
-                  <div className="relative overflow-hidden rounded-3xl bg-white/5 shadow-neon-sm">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-52 w-full object-cover"
-                    />
-                    {product.soldOut && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-center text-xl font-bold uppercase tracking-[0.25em] text-white">
-                        Sold Out
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-4">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.35em] text-neutral-300">
-                      {product.category}
-                    </span>
-                    <div className="grid h-14 w-14 place-items-center rounded-3xl bg-white/5 text-2xl shadow-neon-sm">
-                      {product.icon}
-                    </div>
-                  </div>
-                  <h2 className="mt-6 text-xl font-semibold text-white">{product.name}</h2>
-                  <p className="mt-3 text-sm text-white/60">{product.description}</p>
-                  <div className="mt-6 flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-2xl font-bold text-neon">₹{product.price}</p>
-                      <p className="text-xs text-white/50">Fast shipping available</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => addToCart(product)} disabled={loading || product.soldOut} className="whitespace-nowrap">
-                        Add to Cart
-                      </Button>
-                      <Button onClick={() => handleCheckout(product)} variant="ghost" className="whitespace-nowrap" disabled={loading || product.soldOut}>
-                        Buy Now
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+            {/* Feedback toast */}
+            <AnimatePresence>
+              {addedId && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="fixed top-20 right-6 z-50 bg-neon text-ink-900 font-bold px-5 py-3 rounded-xl shadow-neon-sm"
+                >
+                  ✓ Added to cart!
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <aside className="space-y-6">
-            <section className="glass rounded-3xl border border-white/10 p-6 shadow-neon-sm">
-              <h3 className="text-xl font-semibold text-white">Your cart</h3>
-              {cart.length ? (
-                <div className="mt-5 space-y-4">
-                  {cart.map((item) => (
-                    <div key={item.id} className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <p className="font-semibold text-white">{item.name}</p>
-                          <p className="text-sm text-white/50">₹{item.price} × {item.quantity}</p>
+            {loading ? (
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="grid place-items-center h-64 text-white/50">
+                <div className="text-center space-y-3">
+                  <svg className="w-16 h-16 mx-auto opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <p>No products available in this category.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredProducts.map((product, i) => (
+                  <motion.article
+                    key={product.id}
+                    custom={i}
+                    variants={cardVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: '-50px' }}
+                    onClick={() => navigate(`/product/${product.id}`)}
+                    className="cursor-pointer glass rounded-2xl border border-white/10 p-5 shadow-soft-md flex flex-col group relative hover:border-neon/50 transition-all duration-500 overflow-hidden bg-white/[0.02] hover:bg-white/[0.04] animated-border"
+                  >
+                    <div className="relative overflow-hidden rounded-xl bg-black/50 aspect-square flex items-center justify-center">
+                      {product.image ? (
+                        <img
+                          src={pb.files.getUrl(product, product.image, { thumb: '400x400' })}
+                          alt={product.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="text-white/20 text-sm">No Image</div>
+                      )}
+                      {!product.active && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-center text-lg font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+                          Sold Out
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="rounded-full border border-white/10 px-3 py-1 text-white/80 hover:border-neon"
-                          >
-                            -
-                          </button>
-                          <span className="w-8 text-center text-sm text-white">{item.quantity}</span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="rounded-full border border-white/10 px-3 py-1 text-white/80 hover:border-neon"
-                          >
-                            +
-                          </button>
+                      )}
+                      {product.active && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); addToCart(product); }}
+                          className="absolute bottom-4 right-4 bg-neon text-ink-900 w-11 h-11 rounded-full flex items-center justify-center shadow-neon-sm opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 z-10 hover:scale-110 active:scale-90"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="mt-4 flex flex-col flex-1">
+                      <span className="text-[10px] uppercase tracking-widest text-white/40 font-semibold mb-1">
+                        {product.category}
+                      </span>
+                      <h2 className="text-lg font-bold text-white mb-2 line-clamp-1" title={product.name}>{product.name}</h2>
+                      <div className="mt-auto flex items-end justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-2xl font-black text-neon">₹{product.price}</span>
                         </div>
-                      </div>
-                      <div className="mt-4 flex items-center justify-between gap-4">
-                        <p className="text-sm text-white/60">Subtotal: ₹{item.price * item.quantity}</p>
-                        <Button variant="ghost" onClick={() => removeFromCart(item.id)}>
-                          Remove
+                        <Button onClick={(e) => { e.stopPropagation(); buyNow(product); }} variant="ghost" className="text-sm px-3 py-1.5 h-auto text-white/70 hover:text-white z-10" disabled={!product.active}>
+                          Buy Now
                         </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-5 text-sm text-white/60">Start adding items to see them here.</p>
-              )}
-            </section>
-
-            <section className="glass rounded-3xl border border-white/10 p-6 shadow-neon-sm">
-              <h3 className="text-xl font-semibold text-white">Customer info</h3>
-              <div className="mt-5 grid gap-4 text-sm text-white/60">
-                <label className="grid gap-2">
-                  Name
-                  <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="rounded-2xl border border-white/10 bg-ink-900 px-4 py-3 text-white outline-none focus:border-neon"
-                    placeholder="Your full name"
-                  />
-                </label>
-                <label className="grid gap-2">
-                  Email
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="rounded-2xl border border-white/10 bg-ink-900 px-4 py-3 text-white outline-none focus:border-neon"
-                    placeholder="you@example.com"
-                    type="email"
-                  />
-                </label>
-                <Button onClick={() => handleCheckout()} variant="solid" className="w-full" disabled={loading || !cart.length}>
-                  {loading ? 'Processing...' : 'Checkout Cart'}
-                </Button>
-                {feedback && <p className="text-sm text-white/70">{feedback}</p>}
+                  </motion.article>
+                ))}
               </div>
-            </section>
-
-            <section className="glass rounded-3xl border border-white/10 p-6 shadow-neon-sm">
-              <h3 className="text-xl font-semibold text-white">Upload Gallery</h3>
-              <p className="mt-2 text-sm text-white/60">Upload your image after login and view it here.</p>
-              {!user ? (
-                <p className="mt-4 text-sm text-white/70">Please <span className="text-neon">login</span> to upload images.</p>
-              ) : (
-                <div className="mt-5 space-y-4 text-sm text-white/60">
-                  <label className="block text-sm text-white/70">Upload image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full rounded-2xl border border-white/10 bg-ink-900 px-4 py-3 text-white outline-none file:cursor-pointer file:rounded-full file:border-0 file:bg-neon file:px-4 file:py-2 file:text-ink-900"
-                  />
-                  {uploadError && <p className="text-sm text-rose-400">{uploadError}</p>}
-                  {galleryImages.length ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {galleryImages.map((image) => (
-                        <div key={image.id} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5">
-                          <img src={image.src} alt={image.name} className="h-36 w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeGalleryImage(image.id)}
-                            className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs text-white"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-white/50">No uploaded images yet. Add one to save it to your gallery.</p>
-                  )}
-                </div>
-              )}
-            </section>
-          </aside>
-        </section>
+            )}
+          </div>
+        </div>
       </div>
-    </main>
+
+      <Reviews />
+    </MainLayout>
   )
 }

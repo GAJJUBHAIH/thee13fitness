@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { getToken } from '../services/token.service.js';
-import { db } from '../config/firebaseAdmin.js';
+import { pb } from '../config/pocketbaseAdmin.js';
 
 const router = Router();
 
@@ -21,15 +21,18 @@ router.get('/verify/:tokenId', asyncHandler(async (req, res) => {
 router.get('/user/:userId', asyncHandler(async (req, res) => {
   const { userId } = req.params;
   if (!userId) return res.status(400).json({ error: 'User ID is required' });
-  if (!db) return res.json([]);
+  if (!pb) return res.json([]);
 
-  const snapshot = await db.collection('tokens')
-    .where('userId', '==', userId)
-    .orderBy('purchaseDate', 'desc')
-    .get();
-
-  const tokens = snapshot.docs.map(doc => doc.data());
-  res.json(tokens);
+  try {
+    const tokens = await pb.collection('tokens').getFullList({
+      filter: `userId="${userId}"`,
+      sort: '-purchaseDate',
+    });
+    res.json(tokens);
+  } catch (err) {
+    console.error('Error fetching user tokens from PocketBase:', err);
+    res.status(500).json({ error: 'Failed to fetch tokens' });
+  }
 }));
 
 export default router;

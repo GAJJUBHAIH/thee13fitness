@@ -10,7 +10,7 @@ export default function Select({ label, id, options, className = '', ...props })
       )}
       <select id={id} className={`${INPUT} ${className}`} {...props}>
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <option key={o.value} value={o.value} className="bg-ink-800 text-white">
             {o.label}
           </option>
         ))}

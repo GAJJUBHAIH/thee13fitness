@@ -5,3 +5,5 @@ dist
 *.log
 .env
 .vscode
+pb_data/
+pocketbase.exe

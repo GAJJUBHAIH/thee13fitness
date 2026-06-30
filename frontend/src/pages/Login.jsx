@@ -2,23 +2,34 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Input, Button } from '../components/ui/index.js'
+import SEO from '../components/SEO.jsx'
 
 export default function Login() {
   const { login, googleLogin } = useAuth()
   const nav = useNavigate()
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ email: '', password: '', rememberMe: true })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [secureReminder] = useState('Your details are protected with secure session handling and encrypted authentication.')
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   const submit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      await login(form.email, form.password)
-      nav('/dashboard')
+      if (!form.rememberMe) {
+        window.sessionStorage.setItem('three13_no_remember', 'true')
+      } else {
+        window.sessionStorage.removeItem('three13_no_remember')
+      }
+      const res = await login(form.email, form.password)
+      const role = res?.record?.role || res?.user?.role || pb?.authStore?.model?.role
+      if (role === 'Admin') {
+        nav('/admin')
+      } else {
+        nav('/')
+      }
     } catch (err) {
       setError(err?.message || 'Unable to sign in. Please check your credentials and try again.')
     } finally {
@@ -31,9 +42,11 @@ export default function Login() {
     setLoading(true)
     try {
       await googleLogin()
-      nav('/dashboard')
+      nav('/')
     } catch (err) {
-      setError(err?.message || 'Google sign-in failed. Please try again.')
+      console.error(err)
+      const detail = err?.response?.message || err?.message || 'Unknown error'
+      setError(`Google Auth Error: ${detail}`)
     } finally {
       setLoading(false)
     }
@@ -41,6 +54,7 @@ export default function Login() {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-slate-950 px-5 py-10 text-white">
+      <SEO title="Login - THREE13 Fitness" description="Secure login to your THREE13 Fitness account." />
       <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-neon/15 via-transparent to-transparent blur-3xl" />
       <div className="relative mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1.4fr_0.85fr]">
         <div className="rounded-[32px] border border-white/10 bg-slate-900/70 p-8 shadow-2xl shadow-black/40 backdrop-blur-xl">
@@ -97,8 +111,17 @@ export default function Login() {
                 onChange={set('password')}
                 required
               />
-              <div className="mt-2 text-right">
-                <Link to="/forgot-password" className="text-sm text-neon hover:text-white">Forgot password?</Link>
+              <div className="mt-3 flex items-center justify-between text-sm">
+                <label className="flex items-center gap-2 cursor-pointer text-white/70 hover:text-white">
+                  <input
+                    type="checkbox"
+                    checked={form.rememberMe}
+                    onChange={set('rememberMe')}
+                    className="rounded border-white/20 bg-white/5 text-neon focus:ring-neon"
+                  />
+                  Remember me
+                </label>
+                <Link to="/forgot-password" className="text-neon hover:text-white">Forgot password?</Link>
               </div>
             </div>
           </div>

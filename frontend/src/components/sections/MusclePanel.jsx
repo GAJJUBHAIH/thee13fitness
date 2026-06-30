@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MUSCLES } from '../../data/index.js'
 import { DIFFICULTY_COLOR } from '../../constants/index.js'
+import { VideoModal } from '../ui/index.js'
 
 export default function MusclePanel({ muscleId, onClose }) {
+  const [activeVideo, setActiveVideo] = useState(null)
   const data = muscleId ? MUSCLES[muscleId] : null
 
   useEffect(() => {
@@ -46,13 +48,31 @@ export default function MusclePanel({ muscleId, onClose }) {
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-white/60">
                     <span>{ex.sets} sets</span><span>{ex.reps} reps</span><span>Rest {ex.rest}</span>
                   </div>
-                  <span className="mt-1 inline-block text-[11px] text-neon/80">{ex.difficulty}</span>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="inline-block text-[11px] text-neon/80">{ex.difficulty}</span>
+                    {ex.videoId && (
+                      <button 
+                        onClick={() => setActiveVideo(ex.videoId)}
+                        className="flex items-center gap-1 rounded bg-neon/10 px-2 py-1 text-[11px] font-semibold text-neon transition hover:bg-neon hover:text-black"
+                      >
+                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                        Watch Video
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </motion.aside>
       )}
+      
+      {/* Video Modal Rendered Outside the Panel so it overlays everything */}
+      <VideoModal 
+        videoId={activeVideo} 
+        isOpen={!!activeVideo} 
+        onClose={() => setActiveVideo(null)} 
+      />
     </AnimatePresence>
   )
 }

@@ -9,11 +9,18 @@ export default function Loader() {
       className="fixed inset-0 z-[100] grid place-items-center bg-ink-900"
     >
       <div className="text-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
-          className="mx-auto h-16 w-16 rounded-full border-2 border-white/10 border-t-neon shadow-neon"
-        />
+        <div className="relative mx-auto h-20 w-20">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+            className="absolute inset-0 rounded-full border-2 border-white/10 border-t-neon shadow-neon"
+          />
+          <img 
+            src="/thee13fitness/assets/logos/logo.png" 
+            alt="Loading..." 
+            className="absolute inset-0 m-auto h-14 w-14 rounded-full opacity-80"
+          />
+        </div>
         <motion.p
           animate={{ opacity: [0.4, 1, 0.4] }}
           transition={{ repeat: Infinity, duration: 1.6 }}

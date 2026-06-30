@@ -1,2 +1,2 @@
-export * from './firebase.js'
+export * from './pocketbase.js'
 export * from './payment.js'

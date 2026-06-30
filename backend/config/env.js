@@ -7,8 +7,10 @@ export const config = {
     keyId: process.env.RAZORPAY_KEY_ID,
     keySecret: process.env.RAZORPAY_KEY_SECRET,
   },
-  firebase: {
-    serviceAccountBase64: process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+  pocketbase: {
+    url: process.env.POCKETBASE_URL || 'http://localhost:8090',
+    adminEmail: process.env.POCKETBASE_ADMIN_EMAIL,
+    adminPassword: process.env.POCKETBASE_ADMIN_PASSWORD,
   },
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID,

@@ -1,32 +1,31 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SectionHeader, Button } from '../ui/index.js'
+import { useAssets } from '../../context/AssetContext.jsx'
 
 const STORIES = [
   {
     name: 'Amit R.',
     result: '-18 kg in 6 months',
     quote: 'Three13 rebuilt my confidence and my body.',
-    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/amit-before.svg`,
-    afterImage: `${import.meta.env.BASE_URL}assets/transformations/amit-after.svg`,
+    image: `${import.meta.env.BASE_URL}assets/transformations/amit-split.jpg`,
   },
   {
     name: 'Neha K.',
     result: '+7 kg lean mass',
     quote: 'The AI planner kept me consistent every single week.',
-    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/neha-before.svg`,
-    afterImage: `${import.meta.env.BASE_URL}assets/transformations/neha-after.svg`,
+    image: `${import.meta.env.BASE_URL}assets/transformations/neha-split.jpg`,
   },
   {
     name: 'Vikram S.',
     result: 'Deadlift 80 -> 160 kg',
     quote: 'Best coaching I have ever had. Pure results.',
-    beforeImage: `${import.meta.env.BASE_URL}assets/transformations/vikram-before.svg`,
-    afterImage: `${import.meta.env.BASE_URL}assets/transformations/vikram-after.svg`,
+    image: `${import.meta.env.BASE_URL}assets/transformations/amit-split.jpg`, // reuse amit for vikram as placeholder
   },
 ]
 
 export default function Transformations() {
+  const { getAsset } = useAssets()
   const [i, setI] = useState(0)
   const story = STORIES[i]
   const go = (d) => setI((p) => (p + d + STORIES.length) % STORIES.length)
@@ -36,18 +35,10 @@ export default function Transformations() {
       <SectionHeader eyebrow="Real Results" title="Transformations" subtitle="Success stories from our members." />
       <div className="glass mx-auto max-w-4xl rounded-3xl p-6">
         <div className="grid items-center gap-6 md:grid-cols-2">
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'BEFORE', src: story.beforeImage },
-              { label: 'AFTER', src: story.afterImage },
-            ].map(({ label, src }) => (
-              <div key={label} className="relative overflow-hidden rounded-2xl border border-white/10 bg-ink-700/60 shadow-sm">
-                <img src={src} alt={`${story.name} ${label}`} className="h-full w-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 bg-black/40 px-3 py-2 text-sm text-white/90 backdrop-blur-sm">
-                  {label}
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 gap-3">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-ink-700/60 shadow-sm aspect-video">
+              <img src={getAsset(`trans_${story.name.split(' ')[0].toLowerCase()}_split`, story.image)} alt={`${story.name} Transformation`} className="h-full w-full object-cover" />
+            </div>
           </div>
           <AnimatePresence mode="wait">
             <motion.div key={i} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.4 }}>
