@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gajjubhaih.github.io/thee13fitness/sitemap.xml
